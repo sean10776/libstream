@@ -97,18 +97,6 @@ static uint32_t tickget(void)
 #endif /* WIN32 */
 }
 
-static void sleepms(int ms)
-{
-#ifdef WIN32
-    if (ms<5) Sleep(1); else Sleep((DWORD)ms);
-#else
-    struct timespec ts;
-    if (ms<=0) return;
-    ts.tv_sec=(time_t)(ms/1000);
-    ts.tv_nsec=(long)(ms%1000*1000000);
-    nanosleep(&ts,NULL);
-#endif
-}
 /* TCP ----------------------------------------------------------------------*/
 typedef struct {            /* tcp control type */
     int state;              /* state (0:close,1:wait,2:connect) */
@@ -1020,7 +1008,8 @@ static DWORD WINAPI serialthread(void *arg)
             if(!WriteFile(ser->dev,buff,(DWORD)n,&ns,NULL)) ser->error=1;
         }
         if (ser->state<=0) break;
-        sleepms(SERIAL_CYCLE-(int)(tickget()-tick));
+        
+        Sleep((DWORD)(SERIAL_CYCLE-(int)(tickget()-tick)));
     }
     free(ser->buff); ser->buff=NULL;
     return 0;
@@ -1563,7 +1552,7 @@ static int mkdir_r(const char *dir)
     if (!*dir||!strcmp(dir+1,":\\")) return 1;
     
     sprintf(pdir,"%.1023s",dir);
-    if ((p=strrchr(pdir,FILEPATHSEP))) {
+    if ((p=strrchr(pdir,FILEPATHSEP))!=NULL) {
         *p='\0';
         h=FindFirstFile(pdir,&data);
         if (h==INVALID_HANDLE_VALUE) {
@@ -1622,8 +1611,7 @@ static int openfile_(file_t *file, time_t timer, char *msg)
         createdir(file->openpath);
     }
     if (file->mode&STR_MODE_R) rw="rb";
-    else if (file->mode&STR_MODE_W) rw="wb";
-    else if (file->mode&STR_MODE_A) rw="ab";
+    else rw=(file->mode&STR_MODE_W)?"wb":"ab";
     
     /* open new file */
     if ((file->fp=fopen(file->openpath,rw))==NULL) {
@@ -1741,6 +1729,8 @@ static int readfile(file_t *file, unsigned char *buff, int nmax, char *msg)
     
     if (file->fp==stdin) {
 #ifndef WIN32
+        fd_set rs;
+        struct timeval tv={0};
         /* input from stdin */
         FD_ZERO(&rs); FD_SET(0,&rs);
         if (!select(1,&rs,NULL,NULL,&tv)) return 0;
@@ -1763,7 +1753,6 @@ static int readfile(file_t *file, unsigned char *buff, int nmax, char *msg)
 static int writefile(file_t *file, unsigned char *buff, int n, char *msg)
 {
     time_t wtime;
-    uint32_t tick=tickget();
     int ns;
     double pt,ct,intv;
     long fpos;

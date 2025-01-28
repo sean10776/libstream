@@ -5,10 +5,22 @@
 
 static stream_t stream;
 
+static void sleepms(int ms) {
+#ifdef WIN32
+    if (ms<5) Sleep(1); else Sleep((DWORD) ms);
+#else
+    struct timespec ts;
+    if (ms<=0) return;
+    ts.tv_sec = ms / 1000;
+    ts.tv_nsec = (ms % 1000) * 1000000;
+    nanosleep(&ts, NULL);
+#endif
+}
+
 static void tcpsvr_test(stream_t *str) {
     stropen(str, STR_TCPSVR, STR_MODE_RW, ":2000");
     
-    Sleep(5000);
+    sleepms(5000);
     strwrite(str, (unsigned char *)"Hello World\n", 12);
 
     char buff[1024];
@@ -18,7 +30,7 @@ static void tcpsvr_test(stream_t *str) {
         buff[len]='\0';
         printf("%s\n", buff);
         strwrite(str,(unsigned char *)buff,len);
-        Sleep(1000);
+        sleepms(1000);
     }
     strclose(str);
 }
@@ -33,7 +45,7 @@ static void tcpcli_test(stream_t *str) {
         buff[len]='\0';
         printf("svr (%d)=>%s\n", len, buff);
         strwrite(str, (unsigned char *)"Hello World\n", 12);
-        Sleep(1000);
+        sleepms(1000);
     }
     strclose(str);
 }
@@ -47,7 +59,7 @@ static void udpsvr_test(stream_t *str) {
         buff[len]='\0';
         printf("clt (%d)=>%s\n", len, buff);
         strwrite(str, (unsigned char *)"Hello World\n", 12);
-        Sleep(1000);
+        sleepms(1000);
     }
     strclose(str);
 }
@@ -61,7 +73,7 @@ static void udpcli_test(stream_t *str) {
         buff[len]='\0';
         printf("svr (%d)=>%s\n", len, buff);
         strwrite(str, (unsigned char *)"Hello World\n", 12);
-        Sleep(1000);
+        sleepms(1000);
     }
     strclose(str);
 }

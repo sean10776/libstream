@@ -6,6 +6,18 @@
 stream_t stream_i, stream_o;
 static const char *test_str = "Hello, World!";
 
+static void sleepms(int ms) {
+#ifdef WIN32
+    if (ms<5) Sleep(1); else Sleep((DWORD) ms);
+#else
+    struct timespec ts;
+    if (ms<=0) return;
+    ts.tv_sec = ms / 1000;
+    ts.tv_nsec = (ms % 1000) * 1000000;
+    nanosleep(&ts, NULL);
+#endif
+}
+
 TEST_CASE("Test stream initialization") {
     strinitcom();
     strinit(&stream_i);
@@ -29,7 +41,7 @@ TEST_CASE("Test TCP connection & read write") {
     CHECK(stream_o.state==1);
 
     /* Write test string from stream_i to stream_o */
-    while (!strwrite(&stream_i, (unsigned char*) test_str, len)) Sleep(10);
+    while (!strwrite(&stream_i, (unsigned char*) test_str, len)) sleepms(10);
     
     /* Read test string in stream_o */
     len_o = strread(&stream_o, (unsigned char*) buf_o, 1024);
@@ -37,7 +49,7 @@ TEST_CASE("Test TCP connection & read write") {
     CHECK(strncmp(buf_o, test_str, len)==0);
     
     /* Write test string from stream_o to stream_i */
-    while (!strwrite(&stream_o, (unsigned char*) test_str, len)) Sleep(10);
+    while (!strwrite(&stream_o, (unsigned char*) test_str, len)) sleepms(10);
     
     /* Read test string in stream_i */
     len_i = strread(&stream_i, (unsigned char*) buf_i, 1024);
@@ -61,7 +73,7 @@ TEST_CASE("Test UDP connection & read write") {
     CHECK(stream_o.state==1);
     
     /* Write test string from stream_i to stream_o */
-    while (!strwrite(&stream_i, (unsigned char*) test_str, len)) Sleep(10);
+    while (!strwrite(&stream_i, (unsigned char*) test_str, len)) sleepms(10);
     
     /* Read test string in stream_o */
     len_i = strread(&stream_o, (unsigned char*) buf_i, 1024);
