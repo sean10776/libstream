@@ -34,11 +34,8 @@ TEST_CASE("Test TCP connection & read write") {
     int len, len_i, len_o;
     len = strlen(test_str);
 
-    stropen(&stream_o, STR_TCPSVR, STR_MODE_RW, ":8080");
-    stropen(&stream_i, STR_TCPCLI, STR_MODE_RW, "127.0.0.1:8080");
-
-    CHECK(stream_i.state==1);
-    CHECK(stream_o.state==1);
+    CHECK(stropen(&stream_o, STR_TCPSVR, STR_MODE_RW, ":8080")==1);
+    CHECK(stropen(&stream_i, STR_TCPCLI, STR_MODE_RW, "127.0.0.1:8080")==1);
 
     /* Write test string from stream_i to stream_o */
     while (!strwrite(&stream_i, (unsigned char*) test_str, len)) sleepms(10);
@@ -66,11 +63,8 @@ TEST_CASE("Test UDP connection & read write") {
     int len, len_i;
     len = strlen(test_str);
 
-    stropen(&stream_o, STR_UDPSVR, STR_MODE_RW, ":2000");
-    stropen(&stream_i, STR_UDPCLI, STR_MODE_RW, "127.0.0.1:2000");
-    
-    CHECK(stream_i.state==1);
-    CHECK(stream_o.state==1);
+    CHECK(stropen(&stream_o, STR_UDPSVR, STR_MODE_RW, ":2000")==1);
+    CHECK(stropen(&stream_i, STR_UDPCLI, STR_MODE_RW, "127.0.0.1:2000")==1);
     
     /* Write test string from stream_i to stream_o */
     while (!strwrite(&stream_i, (unsigned char*) test_str, len)) sleepms(10);
@@ -91,9 +85,7 @@ TEST_CASE("Test File I/O") {
     len = strlen(test_str);
     sprintf(answer,"%s%s",test_str,test_str);
 
-    stropen(&stream_i, STR_FILE, STR_MODE_W, file);
-    
-    CHECK(stream_i.state==1);
+    CHECK(stropen(&stream_i, STR_FILE, STR_MODE_W, file)==1);
 
     /* write test message to file */
     strwrite(&stream_i, (unsigned char*) test_str, len);
