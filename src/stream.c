@@ -1083,7 +1083,7 @@ static dev_t _openserial(const char *port, stream_mode mode, char *msg, int brat
     for(i=0;i<sizeof(br)/sizeof(*br);i++) if (br[i]==brate) break;
     if (i>=sizeof(br)/sizeof(*br)) {
         sprintf(msg,"baud rate error (%d)",brate);
-        return NULL;
+        return 0;
     }
 
     sprintf(dev_path,"/dev/%.*s",(int)sizeof(port)-6,port);
@@ -1093,7 +1093,7 @@ static dev_t _openserial(const char *port, stream_mode mode, char *msg, int brat
     
     if ((dev=open(dev_path,rw|O_NOCTTY|O_NONBLOCK))<0) {
         sprintf(msg,"%s open error (%d)",dev_path,errno);
-        return NULL;
+        return 0;
     }
     tcgetattr(dev,&ios);
     ios.c_iflag=0;
@@ -1993,7 +1993,7 @@ extern void strclose(stream_t *stream)
         case STR_FILE    : closefile  ((file_t   *)stream->port); break;
         case STR_TCPSVR  : closetcpsvr((tcpsvr_t *)stream->port); break;
         case STR_TCPCLI  : closetcpcli((tcpcli_t *)stream->port); break;
-        case STR_TCPCLI_SSL: closetcpclissl((dev_t)stream->port); break;
+        case STR_TCPCLI_SSL: closetcpclissl((tcpcli_t *)stream->port); break;
         case STR_UDPSVR  :
         case STR_UDPCLI  : closeudp   ((udp_t    *)stream->port); break;
         case STR_NTRIPSVR:
