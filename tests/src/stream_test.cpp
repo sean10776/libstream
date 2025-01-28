@@ -59,7 +59,6 @@ TEST_CASE("Test TCP connection & read write") {
 }
 
 TEST_CASE("Test UDP connection & read write") {
-#ifdef WIN32 // only test on Windows to pass github action test.
     char buf_i[1024]={0};
     int len, len_i;
     len = strlen(test_str);
@@ -78,7 +77,6 @@ TEST_CASE("Test UDP connection & read write") {
     /* Close streams */
     strclose(&stream_i);
     strclose(&stream_o);
-#endif
 }
 
 TEST_CASE("Test File I/O") {

@@ -1312,7 +1312,7 @@ static udp_t *genudp(int type, int port, const char *saddr, char *msg)
         int ret=1;
         struct addrinfo hints = {0}, *addrs;
         hints.ai_family = AF_INET;
-        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_socktype = SOCK_DGRAM;
         hints.ai_protocol = IPPROTO_UDP;
         char port[256] = "";
         sprintf(port, "%d", udp->port);
@@ -1933,6 +1933,13 @@ extern void strinit(stream_t *stream)
 *   STR_TCPCLI   addr:port
 *                    addr  = TCP server address to connect
 *                    port  = TCP server port to connect
+*
+*   STR_UDPSVR   :port
+*                    port  = UDP server port to receive
+*
+*   STR_UDPCLI   addr:port
+*                    addr  = UDP server or broadcast address to send
+*                    port  = UDP server or broadcast port to send
 *
 *   STR_NTRIPSVR [:passwd@]addr[:port]/mponit[:string]
 *                    addr  = NTRIP caster address to connect
