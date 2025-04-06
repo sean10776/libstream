@@ -58,10 +58,22 @@ static int fswapmargin=30;  /* file swap margin (s) */
 #define dev_t               HANDLE
 #define socket_t            SOCKET
 typedef int socklen_t;
+#define initlock(f) InitializeCriticalSection(f)
+#define lock(f)     EnterCriticalSection(f)
+#define unlock(f)   LeaveCriticalSection(f)
+#define FILEPATHSEP '\\'
 #else
 #define dev_t               int
 #define socket_t            int
 #define closesocket         close
+#if defined( INHIBIT_RTK_LOCK_MACROS)
+#else
+/* these defs break apple mutex */
+#define initlock(f) pthread_mutex_init((f),NULL)
+#define lock(f)     pthread_mutex_lock(f)
+#define unlock(f)   pthread_mutex_unlock(f)
+#endif
+#define FILEPATHSEP '/'
 #endif
 
 /* common function ----------------------------------------------------------*/
@@ -956,7 +968,7 @@ typedef struct {            /* serial control type */
     int state,wp,rp;        /* state,write/read pointer */
     int buffsize;           /* write buffer size (bytes) */
     HANDLE thread;          /* write thread */
-    lock_t lock;            /* lock flag */
+    str_lock_t lock;        /* lock flag */
     unsigned char *buff;    /* write buffer */
 #endif
     tcpsvr_t *tcpsvr;       /* tcp server for received stream */
@@ -1414,7 +1426,7 @@ typedef struct {
     double start;           /* start offset (s) */
     double speed;           /* replay speed (time factor) */
     double swapintv;        /* swap interval (hr) (0: no swap) */
-    lock_t lock;            /* lock flag */
+    str_lock_t lock;        /* lock flag */
 } file_t;
 
 static time_t epoch2time(const double *ep)

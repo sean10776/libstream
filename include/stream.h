@@ -27,23 +27,11 @@ extern "C" {
 #endif
 
 #ifdef WIN32
-#define thread_t    HANDLE
-#define lock_t      CRITICAL_SECTION
-#define initlock(f) InitializeCriticalSection(f)
-#define lock(f)     EnterCriticalSection(f)
-#define unlock(f)   LeaveCriticalSection(f)
-#define FILEPATHSEP '\\'
+typedef HANDLE str_thread_t;
+typedef CRITICAL_SECTION str_lock_t;
 #else
-#define thread_t    pthread_t
-#define lock_t      pthread_mutex_t
-#if defined( INHIBIT_RTK_LOCK_MACROS)
-#else
-/* these defs break apple mutex */
-#define initlock(f) pthread_mutex_init((f),NULL)
-#define lock(f)     pthread_mutex_lock(f)
-#define unlock(f)   pthread_mutex_unlock(f)
-#endif
-#define FILEPATHSEP '/'
+typedef pthread_t str_thread_t;
+typedef pthread_mutex_t str_lock_t;
 #endif
 
 typedef enum {
@@ -81,7 +69,7 @@ typedef struct {            /* stream type */
     uint32_t tick_o;        /* output tick */
     uint32_t tact;          /* active tick */
     uint32_t inbt,outbt;    /* input/output bytes at tick */
-    lock_t lock;            /* lock flag */
+    str_lock_t lock;            /* lock flag */
     void *port;             /* type dependent port control struct */
     char path[MAXSTRPATH];  /* stream path */
     char msg [MAXSTRMSG];   /* stream message */
