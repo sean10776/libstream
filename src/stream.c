@@ -1880,6 +1880,9 @@ extern void strinit(stream_t *stream)
     stream->path[0]='\0';
     stream->msg [0]='\0';
 }
+/* lock & unlock stream -----------------------------------------------------*/
+extern void strlock  (stream_t *stream) {lock  (&stream->lock);}
+extern void strunlock(stream_t *stream) {unlock(&stream->lock);}
 /* open stream -----------------------------------------------------------------
 *
 * open stream to read or write data from or to virtual devices.

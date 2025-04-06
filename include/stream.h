@@ -96,8 +96,8 @@ EXPORT int  strread(stream_t *stream, unsigned char *buff, int n);
 EXPORT int  strwrite(stream_t *stream, unsigned char *buff, int n);
 EXPORT int  strstat(stream_t *stream, char *msg);
 EXPORT int  strstatx(stream_t *stream, char *msg);
-EXPORT void strlock  (stream_t *stream) {lock  (&stream->lock);}
-EXPORT void strunlock(stream_t *stream) {unlock(&stream->lock);}
+EXPORT void strlock  (stream_t *stream);
+EXPORT void strunlock(stream_t *stream);
 
 #ifdef __cplusplus
 }
